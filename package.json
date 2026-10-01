@@ -1,13 +1,16 @@
 {
   "name": "smartfleet-360",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "SmartFleet 360 - Enterprise Fleet & Transport Management System",
+  "main": "server/dist/index.js",
   "scripts": {
+    "postinstall": "npm --prefix server install && npm --prefix client install",
     "tunnel": "node scripts/tunnel.mjs",
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev",
-    "build": "npm --prefix server run build && npm --prefix client run build",
+    "build": "npm --prefix client run build && npm --prefix server run build",
+    "start": "node server/dist/index.js",
+    "seed": "npm --prefix server run seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
