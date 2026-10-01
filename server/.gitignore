@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Database & Runtime Uploads
+uploads/*
+!uploads/.gitkeep
+data/*.db-journal
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/

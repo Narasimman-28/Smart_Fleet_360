@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-main: #09090B;
+  --bg-secondary: #111113;
+  --bg-card: #18181B;
+  --bg-card-hover: #202024;
+  --bg-surface: #18181B;
+  --border-color: #3F3F46;
+  --border-red: #7F1D1D;
+  --text-main: #F5F5F5;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --primary-red: #E53935;
+  --bright-red: #FF1744;
+  --dark-red: #B71C1C;
+  --very-dark-red: #7F1D1D;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #FF1744;
+  --info: #60A5FA;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #09090B;
+  color: #F5F5F5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  color: #F5F5F5;
+}
+
+/* Glassmorphism / Dark Card Effect */
+.glass-panel {
+  background: #18181B;
+  border: 1px solid #3F3F46;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-light {
+  background: #18181B;
+  border: 1px solid #3F3F46;
+}
+
+/* Custom Sleek Dark & Red Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #09090B;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border-radius: 9999px;
+  border: 1px solid #3F3F46;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E53935;
+}
+
+/* Smooth Pulse Animation for Live Badges */
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.05);
+  }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s infinite ease-in-out;
+}
+
+/* Dark Leaflet Controls & Popups */
+.leaflet-container {
+  background: #09090B !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-tile-pane {
+  filter: brightness(0.7) invert(1) contrast(1.7) hue-rotate(180deg) saturate(0.4);
+}
+
+.leaflet-bar {
+  background: #18181B !important;
+  border: 1px solid #3F3F46 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
+}
+
+.leaflet-bar a {
+  background-color: #18181B !important;
+  color: #F5F5F5 !important;
+  border-bottom: 1px solid #3F3F46 !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #27272A !important;
+  color: #FF1744 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #18181B !important;
+  color: #F5F5F5 !important;
+  border: 1px solid #7F1D1D !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7) !important;
+}
+
+.leaflet-popup-tip {
+  background: #18181B !important;
+  border: 1px solid #7F1D1D !important;
+}
+
+.leaflet-popup-close-button {
+  color: #A1A1AA !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #FF1744 !important;
+}
+
+/* Global Dark Form Controls */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(320deg);
+  cursor: pointer;
+}
+
+select option {
+  background-color: #18181B;
+  color: #F5F5F5;
+}
+
+/* Print Formatting in Dark Style */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #09090B !important;
+    color: #F5F5F5 !important;
+  }
+  .glass-panel {
+    background: #18181B !important;
+    border: 1px solid #3F3F46 !important;
+    box-shadow: none !important;
+    color: #F5F5F5 !important;
+  }
+}
