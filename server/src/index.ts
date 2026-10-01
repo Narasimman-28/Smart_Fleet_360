@@ -139,12 +139,24 @@ app.use('/api/driver-tracking', driverTrackingRouter);
 app.use('/api/uploads', uploadsRouter);
 
 // Serve Static Frontend in Production
-const clientDistPath = path.resolve(__dirname, '../../client/dist');
+const clientDistCandidates = [
+  path.resolve(__dirname, '../../client/dist'),
+  path.resolve(__dirname, '../client/dist'),
+  path.resolve(process.cwd(), 'client/dist'),
+  path.resolve(process.cwd(), 'dist')
+];
+import fs from 'fs';
+const clientDistPath = clientDistCandidates.find(p => fs.existsSync(p)) || clientDistCandidates[0];
 app.use(express.static(clientDistPath));
 
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(clientDistPath, 'index.html'));
+    const indexPath = path.join(clientDistPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(200).send('SmartFleet 360 API Server Online');
+    }
   }
 });
 

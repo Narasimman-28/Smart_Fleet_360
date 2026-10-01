@@ -4,7 +4,8 @@
   "description": "SmartFleet 360 - Enterprise Fleet & Transport Management System",
   "main": "server/dist/index.js",
   "scripts": {
-    "postinstall": "npm --prefix server install && npm --prefix client install",
+    "postinstall": "npm --prefix server install --include=dev && npm --prefix client install --include=dev",
+    "render-build": "npm --prefix server install --include=dev && npm --prefix client install --include=dev && npm --prefix client run build && npm --prefix server run build",
     "tunnel": "node scripts/tunnel.mjs",
     "dev:server": "npm --prefix server run dev",
     "dev:client": "npm --prefix client run dev",

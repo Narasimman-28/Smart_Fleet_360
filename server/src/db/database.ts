@@ -71,15 +71,23 @@ export const db = {
 };
 
 export async function initDatabase(): Promise<void> {
-  let schemaPath = path.resolve(__dirname, 'schema.sql');
-  if (!fs.existsSync(schemaPath)) {
-    schemaPath = path.resolve(__dirname, '../../src/db/schema.sql');
+  const candidatePaths = [
+    path.resolve(__dirname, 'schema.sql'),
+    path.resolve(__dirname, '../src/db/schema.sql'),
+    path.resolve(__dirname, '../../src/db/schema.sql'),
+    path.resolve(__dirname, '../../server/src/db/schema.sql'),
+    path.resolve(process.cwd(), 'server/src/db/schema.sql'),
+    path.resolve(process.cwd(), 'src/db/schema.sql'),
+    path.resolve(process.cwd(), 'server/dist/db/schema.sql'),
+    path.resolve(process.cwd(), 'dist/db/schema.sql')
+  ];
+  const schemaPath = candidatePaths.find(p => fs.existsSync(p));
+  if (schemaPath) {
+    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    await db.exec(schemaSql);
+  } else {
+    console.warn('[Database] schema.sql not found in standard paths; proceeding with table verification.');
   }
-  if (!fs.existsSync(schemaPath)) {
-    schemaPath = path.resolve(process.cwd(), 'src/db/schema.sql');
-  }
-  const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-  await db.exec(schemaSql);
 
   // Safe incremental column migrations
   try {
