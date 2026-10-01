@@ -34,6 +34,7 @@ export const UserManagementPage: React.FC = () => {
     phone: '',
     status: 'Active'
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [modalError, setModalError] = useState('');
   const [actionSuccessMsg, setActionSuccessMsg] = useState('');
@@ -77,6 +78,7 @@ export const UserManagementPage: React.FC = () => {
       phone: '',
       status: 'Active'
     });
+    setConfirmPassword('');
     setModalError('');
     setIsAddModalOpen(true);
   };
@@ -91,6 +93,7 @@ export const UserManagementPage: React.FC = () => {
       phone: user.phone || '',
       status: user.status || 'Active'
     });
+    setConfirmPassword('');
     setModalError('');
     setIsEditModalOpen(true);
   };
@@ -105,6 +108,17 @@ export const UserManagementPage: React.FC = () => {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setModalError('');
+
+    if (formData.password.length < 6) {
+      setModalError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    if (formData.password !== confirmPassword) {
+      setModalError('Password and Confirm Password do not match.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.createUser(formData);
@@ -500,16 +514,29 @@ export const UserManagementPage: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-[#F5F5F5] mb-1">Initial Password *</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="At least 6 characters"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#111113] border border-[#3F3F46] rounded-xl text-xs text-[#F5F5F5] placeholder-[#71717A] focus:outline-none focus:border-[#E53935]"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#F5F5F5] mb-1">Password *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Min 6 characters"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#111113] border border-[#3F3F46] rounded-xl text-xs text-[#F5F5F5] placeholder-[#71717A] focus:outline-none focus:border-[#E53935]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#F5F5F5] mb-1">Confirm Password *</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Re-enter password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#111113] border border-[#3F3F46] rounded-xl text-xs text-[#F5F5F5] placeholder-[#71717A] focus:outline-none focus:border-[#E53935]"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

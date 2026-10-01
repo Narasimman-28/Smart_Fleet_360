@@ -138,7 +138,17 @@ export async function initDatabase(): Promise<void> {
     'ALTER TABLE bookings ADD COLUMN actual_end_date TEXT',
     'ALTER TABLE bookings ADD COLUMN actual_end_time TEXT',
     'ALTER TABLE bookings ADD COLUMN trip_duration TEXT',
-    'ALTER TABLE bookings ADD COLUMN special_instructions TEXT'
+    'ALTER TABLE bookings ADD COLUMN special_instructions TEXT',
+    'ALTER TABLE bookings ADD COLUMN created_by TEXT',
+    'ALTER TABLE bookings ADD COLUMN updated_by TEXT',
+    'ALTER TABLE vehicles ADD COLUMN created_by TEXT',
+    'ALTER TABLE vehicles ADD COLUMN updated_by TEXT',
+    'ALTER TABLE expenses ADD COLUMN created_by TEXT',
+    'ALTER TABLE expenses ADD COLUMN updated_by TEXT',
+    'ALTER TABLE service_records ADD COLUMN created_by TEXT',
+    'ALTER TABLE service_records ADD COLUMN updated_by TEXT',
+    'ALTER TABLE fuel_records ADD COLUMN created_by TEXT',
+    'ALTER TABLE fuel_records ADD COLUMN updated_by TEXT'
   ];
 
   for (const sql of newVehicleCols) {

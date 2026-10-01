@@ -34,6 +34,40 @@ function formatSafeUser(user: any, activeRole?: string, actualRole?: string) {
   };
 }
 
+// In-memory brute-force protection for repeated failed login attempts
+interface FailedLoginTracker {
+  attempts: number;
+  lockedUntil: number;
+}
+const failedLoginMap = new Map<string, FailedLoginTracker>();
+
+function checkLoginRateLimit(key: string): { isLocked: boolean; waitMinutes: number } {
+  const entry = failedLoginMap.get(key);
+  if (!entry) return { isLocked: false, waitMinutes: 0 };
+  const now = Date.now();
+  if (entry.lockedUntil > now) {
+    const waitMinutes = Math.ceil((entry.lockedUntil - now) / 60000);
+    return { isLocked: true, waitMinutes };
+  }
+  if (entry.lockedUntil <= now && entry.attempts >= 5) {
+    failedLoginMap.delete(key);
+  }
+  return { isLocked: false, waitMinutes: 0 };
+}
+
+function recordFailedLogin(key: string) {
+  const entry = failedLoginMap.get(key) || { attempts: 0, lockedUntil: 0 };
+  entry.attempts += 1;
+  if (entry.attempts >= 5) {
+    entry.lockedUntil = Date.now() + 5 * 60 * 1000; // 5 minute lock
+  }
+  failedLoginMap.set(key, entry);
+}
+
+function clearFailedLogin(key: string) {
+  failedLoginMap.delete(key);
+}
+
 // 1. User Login (POST /api/auth/login)
 router.post('/login', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -45,26 +79,41 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const cleanIdentifier = String(identifier).trim();
+    const cleanIdentifier = String(identifier).trim().toLowerCase();
+    const clientIp = String(req.ip || req.socket.remoteAddress || 'unknown');
+    const rateLimitKey = `${clientIp}:${cleanIdentifier}`;
+
+    // 1. Check rate limit
+    const { isLocked, waitMinutes } = checkLoginRateLimit(rateLimitKey);
+    if (isLocked) {
+      res.status(429).json({
+        error: `Too many failed login attempts. Please wait ${waitMinutes} minute${waitMinutes > 1 ? 's' : ''} before trying again.`
+      });
+      return;
+    }
+
+    // 2. Lookup user by email or name
     const user = await db.get(
-      'SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(name) = LOWER(?)',
+      'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(name) = ?',
       [cleanIdentifier, cleanIdentifier]
     );
 
     if (!user) {
-      // Safe error message - do not reveal whether user exists
-      res.status(401).json({ error: 'Invalid username or password.' });
+      recordFailedLogin(rateLimitKey);
+      res.status(401).json({ error: 'Invalid email or password.' });
       return;
     }
 
-    // Check account active status
+    // 3. Check account active status
     if (user.status === 'Inactive' || user.status === 'Suspended') {
-      res.status(403).json({ error: 'Your account is currently inactive. Contact the administrator.' });
+      res.status(403).json({ error: 'Your account is currently disabled. Please contact the administrator.' });
       return;
     }
 
+    // 4. Verify password with bcrypt
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
+      recordFailedLogin(rateLimitKey);
       await logAudit({
         userId: user.id,
         userName: user.name,
@@ -74,9 +123,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         newValues: { email: user.email, reason: 'Invalid password attempt' },
         ipAddress: req.ip
       });
-      res.status(401).json({ error: 'Invalid username or password.' });
+      res.status(401).json({ error: 'Invalid email or password.' });
       return;
     }
+
+    // Clear failed login tracking on success
+    clearFailedLogin(rateLimitKey);
 
     // Update last_login timestamp in database
     const nowIso = new Date().toISOString();

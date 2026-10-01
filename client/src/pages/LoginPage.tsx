@@ -11,10 +11,10 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess }) => {
   const { login, isLoading, logoutMessage, clearLogoutMessage } = useAuth();
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState(() => localStorage.getItem('smartfleet_remembered_email') || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => Boolean(localStorage.getItem('smartfleet_remembered_email')));
   const [errorMsg, setErrorMsg] = useState('');
 
   // Auto-dismiss logout toast after 5 seconds
@@ -39,13 +39,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess }) => {
 
     try {
       await login(identifier.trim(), password);
+      
+      // Save or remove remembered email
+      if (rememberMe) {
+        localStorage.setItem('smartfleet_remembered_email', identifier.trim());
+      } else {
+        localStorage.removeItem('smartfleet_remembered_email');
+      }
+
       setPassword('');
-      setIdentifier('');
       if (onSuccess) {
         onSuccess();
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Invalid username or password.');
+      setErrorMsg(err.message || 'Invalid email or password.');
     }
   };
 
@@ -167,7 +174,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess }) => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="rounded border-[#3F3F46] bg-[#18181B] text-[#E53935] focus:ring-[#E53935] w-3.5 h-3.5 mr-2 accent-[#E53935]"
                 />
-                <span>Remember this device</span>
+                <span>Remember email</span>
               </label>
             </div>
 
@@ -175,16 +182,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-4 py-2.5 bg-[#E53935] hover:bg-[#FF1744] text-[#F5F5F5] text-xs font-semibold rounded-xl shadow-lg shadow-[#E53935]/25 transition disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer border border-[#FF1744]/30"
+                className="w-full flex items-center justify-center px-4 py-2.5 bg-[#E53935] hover:bg-[#FF1744] text-[#F5F5F5] text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-[#E53935]/25 transition disabled:opacity-50 disabled:cursor-not-allowed group cursor-pointer border border-[#FF1744]/30"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Verifying Credentials...</span>
+                    <span>Verifying...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-1.5">
-                    <span>Sign In to SmartFleet</span>
+                    <span>LOGIN</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition" />
                   </div>
                 )}
